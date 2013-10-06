@@ -6,25 +6,33 @@ import android.content.*;
 import android.widget.*;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.view.Menu;
 
 public class MainActivity extends Activity {
 
 	private TicGame mGame;
-	
+
 	private Button mBoardButtons[];
 
 	private TextView mInfoTextView;
+	private TextView mAndroidScoreTextView;
+	private TextView mHumanScoreTextView;
+	private TextView mTiesTextView;
+
+	private static int mAndroidScore;
+	private static int mHumanScore;
+	private static int mTies;
 
 	static final int DIALOG_DIFFICULTY_ID = 0;
 	static final int DIALOG_QUIT_ID = 1;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		mBoardButtons = new Button[mGame.BOARD_SIZE];
 
 		mBoardButtons[0] = (Button) findViewById(R.id.one);
@@ -36,14 +44,21 @@ public class MainActivity extends Activity {
 		mBoardButtons[6] = (Button) findViewById(R.id.seven);
 		mBoardButtons[7] = (Button) findViewById(R.id.eight);
 		mBoardButtons[8] = (Button) findViewById(R.id.nine);
-		
+
+		mAndroidScore = 0;
+		mHumanScore = 0;
+		mTies = 0;
+
 		mInfoTextView = (TextView) findViewById(R.id.information);
-		
+		mAndroidScoreTextView = (TextView) findViewById(R.id.androidScore);
+		mHumanScoreTextView = (TextView) findViewById(R.id.humanScore);
+		mTiesTextView = (TextView) findViewById(R.id.ties);
+
 		mGame = new TicGame();
-		
+
 		startNewGame();
 	}
-	
+
 	public class ButtonClickListener implements View.OnClickListener {
 
 		int location;
@@ -55,31 +70,58 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View view) {
 
+			final Handler handler = new Handler();
+			
 			if (mBoardButtons[location].isEnabled()) {
 				setMove(TicGame.HUMAN_PLAYER, location);
 
 				int winner = mGame.checkForWinner();
 
 				if (winner == 0) {
-					mInfoTextView.setText("It's Android'sturn.");
+					mInfoTextView.setText(R.string.turn_computer);
 					int move = mGame.getComputerMove();
 					setMove(TicGame.COMPUTER_PLAYER, move);
 					winner = mGame.checkForWinner();
 				}
 
 				if (winner == 0)
-					mInfoTextView.setText("It's your turn.");
-				else if (winner == 1)
-					mInfoTextView.setText("It's a tie!");
-				else if (winner == 2)
-					mInfoTextView.setText("You won!");
-				else
-					mInfoTextView.setText("Android won!");
-
+					mInfoTextView.setText(R.string.turn_human);
+				else if (winner == 1) {
+					mInfoTextView.setText(R.string.result_tie);
+					mTies += 1;
+					mTiesTextView.setText("Empates: " + mTies);
+					
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							startNewGame();
+						}
+					}, 1000);
+				} else if (winner == 2) {
+					mInfoTextView.setText(R.string.result_human_wins);
+					mHumanScore += 1;
+					mHumanScoreTextView.setText("Victorias: " + mHumanScore);
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							startNewGame();
+						}
+					}, 1000);
+				} else {
+					mInfoTextView.setText(R.string.result_computer_wins);
+					mAndroidScore += 1;
+					mAndroidScoreTextView.setText("Derrotas: " + mAndroidScore);
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							startNewGame();
+						}
+					}, 1000);
+				}
 			}
-		}		
+		}
 	}
-	
+
 	private void setMove(char player, int location) {
 
 		mGame.setMove(player, location);
@@ -90,7 +132,6 @@ public class MainActivity extends Activity {
 			mBoardButtons[location].setTextColor(Color.rgb(0, 200, 0));
 		else
 			mBoardButtons[location].setTextColor(Color.rgb(200, 0, 0));
-
 	}
 
 	@Override
@@ -101,7 +142,7 @@ public class MainActivity extends Activity {
 		inflater.inflate(R.menu.options_menu, menu);
 		return true;
 	}
-	
+
 	private void startNewGame() {
 		mGame.clearBoard();
 		for (int i = 0; i < mBoardButtons.length; i++) {
@@ -109,11 +150,10 @@ public class MainActivity extends Activity {
 			mBoardButtons[i].setText("");
 			mBoardButtons[i].setEnabled(true);
 			mBoardButtons[i].setOnClickListener(new ButtonClickListener(i));
-
 		}
-		mInfoTextView.setText("You go first.");
+		mInfoTextView.setText(R.string.turn_human);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -129,10 +169,10 @@ public class MainActivity extends Activity {
 		}
 		return false;
 	}
-	
-//	@Override
+
+	// @Override
 	protected Dialog onCreateDialog(int id) {
-		final AlertDialog levelDialog;
+
 		Dialog dialog = null;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -155,19 +195,22 @@ public class MainActivity extends Activity {
 			builder.setSingleChoiceItems(levels, selected,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
-							
+
 							switch (item) {
 							case 0:
 								mGame.setDifficultyLevel(DifficultyLevel.Easy);
+								startNewGame();
 								break;
 							case 1:
 								mGame.setDifficultyLevel(DifficultyLevel.Harder);
+								startNewGame();
 								break;
 							case 2:
 								mGame.setDifficultyLevel(DifficultyLevel.Expert);
+								startNewGame();
 								break;
 							}
-							
+
 							dialog.dismiss(); // Close dialog
 
 							// TODO: Set the diff level of mGame based on which
@@ -181,7 +224,7 @@ public class MainActivity extends Activity {
 			dialog = builder.create();
 
 			break;
-			
+
 		case DIALOG_QUIT_ID:
 			// Create the quit confirmation dialog
 
@@ -201,7 +244,4 @@ public class MainActivity extends Activity {
 
 		return dialog;
 	}
-	
-	
-
 }

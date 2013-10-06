@@ -86,7 +86,42 @@
                 android:textSize="70dp" />
         </TableRow>
     </TableLayout>
-    
+
+    <TableLayout
+        android:id="@+id/score"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="400dp" >
+
+        <TableRow android:gravity="center_horizontal" >
+
+            <TextView
+                android:id="@+id/androidScore"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="Derrotas: "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/humanScore"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:text="Victorias: "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/ties"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:text="Empates: "
+                android:textSize="20dp" />
+
+        </TableRow>
+    </TableLayout>
+
     <TextView
         android:id="@+id/information"
         android:layout_width="fill_parent"
@@ -96,6 +131,6 @@
         android:layout_marginTop="17dp"
         android:gravity="center_horizontal"
         android:text="info"
-        android:textSize="20dp" />    
+        android:textSize="20dp" />
 
 </RelativeLayout>
