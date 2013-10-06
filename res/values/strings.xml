@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Triqui</string>
+    <string name="action_settings">Settings</string>
+    <string name="first_human">You go first.</string>
+    <string name="turn_human">Your turn.</string>
+    <string name="turn_computer">Android\'s turn.</string>
+    <string name="result_tie">It\'s	a tie.</string>
+    <string name="result_human_wins">You won!</string>
+    <string name="result_computer_wins">Android	won!</string>
+    <string name="quit_question">¿Desea salir?</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+    <string name="difficulty_choose">Elija el nivel de dificultad</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_harder">Difícil</string>
+    <string name="difficulty_expert">Experto</string>
+
+</resources>
