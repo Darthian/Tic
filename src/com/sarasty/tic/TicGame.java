@@ -143,10 +143,12 @@ public class TicGame {
 		}
 	}
 
-	public void setMove(char player, int location) {
+	public boolean setMove(char player, int location) {
 		if (mBoard[location] == OPEN_SPOT) {
 			mBoard[location] = player;
+			return true;
 		}
+		return false;
 	}
 	
 	public DifficultyLevel getDifficultyLevel() {
@@ -155,6 +157,10 @@ public class TicGame {
 
 	public void setDifficultyLevel(DifficultyLevel mDifficultyLevel) {
 		this.mDifficultyLevel = mDifficultyLevel;
+	}
+
+	public char getBoardOccupant(int i) {
+		return mBoard[i];
 	}
 
 //	public void displayBoard() {
