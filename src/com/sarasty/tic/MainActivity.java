@@ -1,10 +1,18 @@
 package com.sarasty.tic;
 
+import android.util.AttributeSet;
 import android.view.*;
+import android.view.View.OnTouchListener;
 import android.app.*;
 import android.content.*;
 import android.widget.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -25,8 +33,39 @@ public class MainActivity extends Activity {
 	private static int mHumanScore;
 	private static int mTies;
 
+	private BoardView mBoardView;
+	private boolean mGameOver;
+
 	static final int DIALOG_DIFFICULTY_ID = 0;
 	static final int DIALOG_QUIT_ID = 1;
+
+	private MediaPlayer mHumanMediaPlayer;
+	private MediaPlayer mComputerMediaPlayer;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.options_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.new_game:
+			startNewGame();
+			return true;
+		case R.id.ai_difficulty:
+			showDialog(DIALOG_DIFFICULTY_ID);
+			return true;
+		case R.id.quit:
+			showDialog(DIALOG_QUIT_ID);
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +73,6 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		mBoardButtons = new Button[mGame.BOARD_SIZE];
-
-		mBoardButtons[0] = (Button) findViewById(R.id.one);
-		mBoardButtons[1] = (Button) findViewById(R.id.two);
-		mBoardButtons[2] = (Button) findViewById(R.id.three);
-		mBoardButtons[3] = (Button) findViewById(R.id.four);
-		mBoardButtons[4] = (Button) findViewById(R.id.five);
-		mBoardButtons[5] = (Button) findViewById(R.id.six);
-		mBoardButtons[6] = (Button) findViewById(R.id.seven);
-		mBoardButtons[7] = (Button) findViewById(R.id.eight);
-		mBoardButtons[8] = (Button) findViewById(R.id.nine);
 
 		mAndroidScore = 0;
 		mHumanScore = 0;
@@ -55,25 +84,28 @@ public class MainActivity extends Activity {
 		mTiesTextView = (TextView) findViewById(R.id.ties);
 
 		mGame = new TicGame();
-
+		mBoardView = (BoardView) findViewById(R.id.board);
+		mBoardView.setGame(mGame);
+		mBoardView.setOnTouchListener(mTouchListener);
 		startNewGame();
+		mGameOver = false;
 	}
 
-	public class ButtonClickListener implements View.OnClickListener {
+	// Listen for touches on the board
+	private OnTouchListener mTouchListener = new OnTouchListener() {
+		public boolean onTouch(View v, MotionEvent event) {
 
-		int location;
-
-		public ButtonClickListener(int location) {
-			this.location = location;
-		}
-
-		@Override
-		public void onClick(View view) {
+			// Determine which cell was touched
+			int col = (int) event.getX() / mBoardView.getBoardCellWidth();
+			int row = (int) event.getY() / mBoardView.getBoardCellHeight();
+			int pos = row * 3 + col;
 
 			final Handler handler = new Handler();
-			
-			if (mBoardButtons[location].isEnabled()) {
-				setMove(TicGame.HUMAN_PLAYER, location);
+
+			if (!mGameOver && setMove(TicGame.HUMAN_PLAYER, pos)) {
+
+				setMove(TicGame.HUMAN_PLAYER, pos);
+				mHumanMediaPlayer.start(); 
 
 				int winner = mGame.checkForWinner();
 
@@ -81,6 +113,7 @@ public class MainActivity extends Activity {
 					mInfoTextView.setText(R.string.turn_computer);
 					int move = mGame.getComputerMove();
 					setMove(TicGame.COMPUTER_PLAYER, move);
+					mComputerMediaPlayer.start(); 
 					winner = mGame.checkForWinner();
 				}
 
@@ -90,7 +123,7 @@ public class MainActivity extends Activity {
 					mInfoTextView.setText(R.string.result_tie);
 					mTies += 1;
 					mTiesTextView.setText("Empates: " + mTies);
-					
+
 					handler.postDelayed(new Runnable() {
 						@Override
 						public void run() {
@@ -119,58 +152,30 @@ public class MainActivity extends Activity {
 					}, 1000);
 				}
 			}
+			// So we aren't notified of continued events when finger is
+			// moved
+			return false;
 		}
-	}
+	};
 
-	private void setMove(char player, int location) {
+	private boolean setMove(char player, int location) {
 
-		mGame.setMove(player, location);
-		mBoardButtons[location].setEnabled(false);
-		mBoardButtons[location].setText(String.valueOf(player));
-
-		if (player == TicGame.HUMAN_PLAYER)
-			mBoardButtons[location].setTextColor(Color.rgb(0, 200, 0));
-		else
-			mBoardButtons[location].setTextColor(Color.rgb(200, 0, 0));
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.options_menu, menu);
-		return true;
-	}
-
-	private void startNewGame() {
-		mGame.clearBoard();
-		for (int i = 0; i < mBoardButtons.length; i++) {
-
-			mBoardButtons[i].setText("");
-			mBoardButtons[i].setEnabled(true);
-			mBoardButtons[i].setOnClickListener(new ButtonClickListener(i));
-		}
-		mInfoTextView.setText(R.string.turn_human);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.new_game:
-			startNewGame();
-			return true;
-		case R.id.ai_difficulty:
-			showDialog(DIALOG_DIFFICULTY_ID);
-			return true;
-		case R.id.quit:
-			showDialog(DIALOG_QUIT_ID);
+		if (mGame.setMove(player, location)) {
+			mBoardView.invalidate(); // Redraw the board
 			return true;
 		}
 		return false;
 	}
 
-	// @Override
+	private void startNewGame() {
+		// mGame.clearBoard();
+		mGameOver = false;
+		mGame.clearBoard();
+		mBoardView.invalidate();
+		mInfoTextView.setText(R.string.turn_human);
+	}
+
+	@Override
 	protected Dialog onCreateDialog(int id) {
 
 		Dialog dialog = null;
@@ -186,37 +191,25 @@ public class MainActivity extends Activity {
 					getResources().getString(R.string.difficulty_harder),
 					getResources().getString(R.string.difficulty_expert) };
 
-			// TODO: Set selected, an integer (0 to n-1), for the Difficulty
-			// dialog.
-			// selected is the radio button that should be selected.
-
-			int selected = -1;
+			int selected = 1;
 
 			builder.setSingleChoiceItems(levels, selected,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 
-							switch (item) {
-							case 0:
+							if (item == 0) {
 								mGame.setDifficultyLevel(DifficultyLevel.Easy);
 								startNewGame();
-								break;
-							case 1:
+							} else if (item == 1) {
 								mGame.setDifficultyLevel(DifficultyLevel.Harder);
 								startNewGame();
-								break;
-							case 2:
+							} else if (item == 2) {
 								mGame.setDifficultyLevel(DifficultyLevel.Expert);
 								startNewGame();
-								break;
 							}
 
 							dialog.dismiss(); // Close dialog
 
-							// TODO: Set the diff level of mGame based on which
-							// item was selected.
-
-							// Display the selected difficulty level
 							Toast.makeText(getApplicationContext(),
 									levels[item], Toast.LENGTH_SHORT).show();
 						}
@@ -244,4 +237,23 @@ public class MainActivity extends Activity {
 
 		return dialog;
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		mHumanMediaPlayer = MediaPlayer.create(getApplicationContext(),
+				R.raw.xsound);
+		mComputerMediaPlayer = MediaPlayer.create(getApplicationContext(),
+				R.raw.osound);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		mHumanMediaPlayer.release();
+		mComputerMediaPlayer.release();
+	}
+
 }
