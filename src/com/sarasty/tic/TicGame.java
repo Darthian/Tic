@@ -163,10 +163,12 @@ public class TicGame {
 		return mBoard[i];
 	}
 
-//	public void displayBoard() {
-//		for (int i = 0; i < BOARD_SIZE; i++) {
-//			mBoard[i] = OPEN_SPOT;
-//		}
-//	}	
+	public char[] getBoardState() {
+		return mBoard;
+	}
+
+	public void setBoardState(char[] charArray) {
+		this.mBoard = charArray;		
+	}
 
 }

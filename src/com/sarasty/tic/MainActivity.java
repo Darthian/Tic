@@ -29,9 +29,9 @@ public class MainActivity extends Activity {
 	private TextView mHumanScoreTextView;
 	private TextView mTiesTextView;
 
-	private static int mAndroidScore;
-	private static int mHumanScore;
-	private static int mTies;
+	private static int mAndroidScore = 0;
+	private static int mHumanScore = 0;
+	private static int mTies = 0;
 
 	private BoardView mBoardView;
 	private boolean mGameOver;
@@ -41,6 +41,10 @@ public class MainActivity extends Activity {
 
 	private MediaPlayer mHumanMediaPlayer;
 	private MediaPlayer mComputerMediaPlayer;
+
+	private char mGoFirst;
+
+	private SharedPreferences mPrefs;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,14 +73,11 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-
+		
 		mBoardButtons = new Button[mGame.BOARD_SIZE];
-
-		mAndroidScore = 0;
-		mHumanScore = 0;
-		mTies = 0;
+		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);		
 
 		mInfoTextView = (TextView) findViewById(R.id.information);
 		mAndroidScoreTextView = (TextView) findViewById(R.id.androidScore);
@@ -87,8 +88,42 @@ public class MainActivity extends Activity {
 		mBoardView = (BoardView) findViewById(R.id.board);
 		mBoardView.setGame(mGame);
 		mBoardView.setOnTouchListener(mTouchListener);
+		
+		displayScores();
+		
 		startNewGame();
 		mGameOver = false;
+		
+		if (savedInstanceState == null) {
+			startNewGame();
+		}		
+
+		mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);		
+		
+		// Restore the scores
+		mHumanScore = mPrefs.getInt("mHumanScore", 0);
+		mAndroidScore = mPrefs.getInt("mAndroidScore", 0);
+		mTies = mPrefs.getInt("mTies", 0);
+
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		mGame.setBoardState(savedInstanceState.getCharArray("board"));
+		mGameOver = savedInstanceState.getBoolean("mGameOver");
+		mInfoTextView.setText(savedInstanceState.getCharSequence("info"));
+		mHumanScore = savedInstanceState.getInt("mHumanScore");
+		mAndroidScore = savedInstanceState.getInt("mAndroidScore");
+		mTies = savedInstanceState.getInt("mTies");
+
+		mGoFirst = savedInstanceState.getChar("mGoFirst");
+	}
+
+	private void displayScores() {
+		mHumanScoreTextView.setText(Integer.toString(mHumanScore));
+		mAndroidScoreTextView.setText(Integer.toString(mAndroidScore));
+		mTiesTextView.setText(Integer.toString(mTies));
 	}
 
 	// Listen for touches on the board
@@ -105,7 +140,7 @@ public class MainActivity extends Activity {
 			if (!mGameOver && setMove(TicGame.HUMAN_PLAYER, pos)) {
 
 				setMove(TicGame.HUMAN_PLAYER, pos);
-				mHumanMediaPlayer.start(); 
+				mHumanMediaPlayer.start();
 
 				int winner = mGame.checkForWinner();
 
@@ -113,7 +148,7 @@ public class MainActivity extends Activity {
 					mInfoTextView.setText(R.string.turn_computer);
 					int move = mGame.getComputerMove();
 					setMove(TicGame.COMPUTER_PLAYER, move);
-					mComputerMediaPlayer.start(); 
+					mComputerMediaPlayer.start();
 					winner = mGame.checkForWinner();
 				}
 
@@ -256,4 +291,31 @@ public class MainActivity extends Activity {
 		mComputerMediaPlayer.release();
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putCharArray("board", mGame.getBoardState());
+		outState.putBoolean("mGameOver", mGameOver);
+		outState.putInt("mHumanScore", Integer.valueOf(mHumanScore));
+		outState.putInt("mAndroidScore", Integer.valueOf(mAndroidScore));
+		outState.putInt("mTies", Integer.valueOf(mTies));
+		outState.putCharSequence("info", mInfoTextView.getText());
+		outState.putChar("mGoFirst", mGoFirst);
+	}
+
+	@Override
+	protected void onStop() {
+
+		super.onStop();
+
+		// Save the current scores
+		SharedPreferences.Editor ed = mPrefs.edit();
+		ed.putInt("mHumanScore", mHumanScore);
+		ed.putInt("mAndroidScore", mAndroidScore);
+		ed.putInt("mTies", mTies);
+
+		ed.commit();
+
+	}
 }

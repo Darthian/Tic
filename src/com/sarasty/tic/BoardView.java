@@ -19,6 +19,7 @@ public class BoardView extends View {
 	// }
 
 	public static final int GRID_WIDTH = 10;
+	public static final int BLACK = 00;
 
 	private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -62,8 +63,8 @@ public class BoardView extends View {
 		int boardHeight = getHeight();
 
 		// Make thick, light gray lines
-		mPaint.setColor(Color.BLACK);
-		mPaint.setStrokeWidth(GRID_WIDTH);
+		mPaint.setColor(Color.WHITE);
+		mPaint.setStrokeWidth(BLACK);
 
 		// Draw the two vertical board lines
 		int cellWidth = boardWidth / 3;
