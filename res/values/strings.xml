@@ -9,6 +9,7 @@
     <string name="result_tie">Es un empate.</string>
     <string name="result_human_wins">Tu ganas!</string>
     <string name="result_computer_wins">Android gana!</string>
+    <string name="clean_message">Se borrarán los puntajes ¿Deseas continuar?</string>
     <string name="quit_question">¿Deseas salir?</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>

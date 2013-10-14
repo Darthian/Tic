@@ -1,28 +1,28 @@
 package com.sarasty.tic;
 
-import android.util.AttributeSet;
-import android.view.*;
-import android.view.View.OnTouchListener;
-import android.app.*;
-import android.content.*;
-import android.widget.*;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	private TicGame mGame;
 
-	private Button mBoardButtons[];
+	private static Button mBoardButtons[];
 
 	private TextView mInfoTextView;
 	private TextView mAndroidScoreTextView;
@@ -38,6 +38,7 @@ public class MainActivity extends Activity {
 
 	static final int DIALOG_DIFFICULTY_ID = 0;
 	static final int DIALOG_QUIT_ID = 1;
+	static final int DIALOG_CLEAN_ID = 2;
 
 	private MediaPlayer mHumanMediaPlayer;
 	private MediaPlayer mComputerMediaPlayer;
@@ -48,6 +49,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		
 		// Inflate the menu; this adds items to the action bar if it is present.
 		super.onCreateOptionsMenu(menu);
 		MenuInflater inflater = getMenuInflater();
@@ -57,12 +59,16 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		
 		switch (item.getItemId()) {
 		case R.id.new_game:
 			startNewGame();
 			return true;
 		case R.id.ai_difficulty:
 			showDialog(DIALOG_DIFFICULTY_ID);
+			return true;
+		case R.id.clean_score:
+			showDialog(DIALOG_CLEAN_ID);
 			return true;
 		case R.id.quit:
 			showDialog(DIALOG_QUIT_ID);
@@ -73,11 +79,11 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
 		mBoardButtons = new Button[mGame.BOARD_SIZE];
-		
+
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);		
+		setContentView(R.layout.activity_main);
 
 		mInfoTextView = (TextView) findViewById(R.id.information);
 		mAndroidScoreTextView = (TextView) findViewById(R.id.androidScore);
@@ -88,18 +94,18 @@ public class MainActivity extends Activity {
 		mBoardView = (BoardView) findViewById(R.id.board);
 		mBoardView.setGame(mGame);
 		mBoardView.setOnTouchListener(mTouchListener);
-		
+
 		displayScores();
-		
+
 		startNewGame();
 		mGameOver = false;
-		
+
 		if (savedInstanceState == null) {
 			startNewGame();
-		}		
+		}
 
-		mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);		
-		
+		mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);
+
 		// Restore the scores
 		mHumanScore = mPrefs.getInt("mHumanScore", 0);
 		mAndroidScore = mPrefs.getInt("mAndroidScore", 0);
@@ -109,6 +115,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+
 		super.onRestoreInstanceState(savedInstanceState);
 		mGame.setBoardState(savedInstanceState.getCharArray("board"));
 		mGameOver = savedInstanceState.getBoolean("mGameOver");
@@ -121,13 +128,15 @@ public class MainActivity extends Activity {
 	}
 
 	private void displayScores() {
-		mHumanScoreTextView.setText(Integer.toString(mHumanScore));
-		mAndroidScoreTextView.setText(Integer.toString(mAndroidScore));
-		mTiesTextView.setText(Integer.toString(mTies));
+
+		mHumanScoreTextView.setText("Victorias: " + mHumanScore);
+		mAndroidScoreTextView.setText("Derrotas: " + mAndroidScore);
+		mTiesTextView.setText("Empates: " + mTies);
 	}
 
 	// Listen for touches on the board
 	private OnTouchListener mTouchListener = new OnTouchListener() {
+
 		public boolean onTouch(View v, MotionEvent event) {
 
 			// Determine which cell was touched
@@ -203,6 +212,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void startNewGame() {
+
 		// mGame.clearBoard();
 		mGameOver = false;
 		mGame.clearBoard();
@@ -253,9 +263,28 @@ public class MainActivity extends Activity {
 
 			break;
 
-		case DIALOG_QUIT_ID:
-			// Create the quit confirmation dialog
+		case DIALOG_CLEAN_ID:
 
+			// Se crea el dialogo de borrado de los puntajes
+			builder.setTitle(R.string.clean_message)
+					.setCancelable(false)
+					.setPositiveButton(R.string.yes,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									mAndroidScore = 0;
+									mHumanScore = 0;
+									mTies = 0;
+									displayScores();
+								}
+							}).setNegativeButton(R.string.no, null);
+			dialog = builder.create();
+
+			break;
+
+		case DIALOG_QUIT_ID:
+
+			// Create the quit confirmation dialog
 			builder.setMessage(R.string.quit_question)
 					.setCancelable(false)
 					.setPositiveButton(R.string.yes,
@@ -269,12 +298,12 @@ public class MainActivity extends Activity {
 
 			break;
 		}
-
 		return dialog;
 	}
 
 	@Override
 	protected void onResume() {
+
 		super.onResume();
 
 		mHumanMediaPlayer = MediaPlayer.create(getApplicationContext(),
@@ -285,6 +314,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onPause() {
+
 		super.onPause();
 
 		mHumanMediaPlayer.release();
@@ -293,6 +323,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+
 		super.onSaveInstanceState(outState);
 
 		outState.putCharArray("board", mGame.getBoardState());
@@ -316,6 +347,5 @@ public class MainActivity extends Activity {
 		ed.putInt("mTies", mTies);
 
 		ed.commit();
-
 	}
 }
