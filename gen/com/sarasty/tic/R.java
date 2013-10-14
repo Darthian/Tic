@@ -21,22 +21,24 @@ public final class R {
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int difficulty_level=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
-        public static final int new_game=0x7f020002;
-        public static final int o=0x7f020003;
-        public static final int quit_game=0x7f020004;
-        public static final int x=0x7f020005;
+        public static final int clean_score=0x7f020000;
+        public static final int difficulty_level=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int new_game=0x7f020003;
+        public static final int o=0x7f020004;
+        public static final int quit_game=0x7f020005;
+        public static final int x=0x7f020006;
     }
     public static final class id {
         public static final int action_settings=0x7f090006;
         public static final int ai_difficulty=0x7f090008;
         public static final int androidScore=0x7f090002;
         public static final int board=0x7f090000;
+        public static final int clean_score=0x7f090009;
         public static final int humanScore=0x7f090003;
         public static final int information=0x7f090005;
         public static final int new_game=0x7f090007;
-        public static final int quit=0x7f090009;
+        public static final int quit=0x7f09000a;
         public static final int score=0x7f090001;
         public static final int ties=0x7f090004;
     }
@@ -54,19 +56,20 @@ public final class R {
     public static final class string {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
-        public static final int difficulty_choose=0x7f06000b;
-        public static final int difficulty_easy=0x7f06000c;
-        public static final int difficulty_expert=0x7f06000e;
-        public static final int difficulty_harder=0x7f06000d;
+        public static final int clean_message=0x7f060008;
+        public static final int difficulty_choose=0x7f06000c;
+        public static final int difficulty_easy=0x7f06000d;
+        public static final int difficulty_expert=0x7f06000f;
+        public static final int difficulty_harder=0x7f06000e;
         public static final int first_human=0x7f060002;
-        public static final int no=0x7f06000a;
-        public static final int quit_question=0x7f060008;
+        public static final int no=0x7f06000b;
+        public static final int quit_question=0x7f060009;
         public static final int result_computer_wins=0x7f060007;
         public static final int result_human_wins=0x7f060006;
         public static final int result_tie=0x7f060005;
         public static final int turn_computer=0x7f060004;
         public static final int turn_human=0x7f060003;
-        public static final int yes=0x7f060009;
+        public static final int yes=0x7f06000a;
     }
     public static final class style {
         /** 

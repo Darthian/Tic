@@ -9,6 +9,10 @@
         android:icon="@drawable/difficulty_level"
         android:title="Difficulty"/>
     <item
+        android:id="@+id/clean_score"
+        android:icon="@drawable/clean_score"
+        android:title="Clean Score"/>
+    <item
         android:id="@+id/quit"
         android:icon="@drawable/quit_game"
         android:title="Quit"/>

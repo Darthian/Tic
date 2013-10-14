@@ -12,14 +12,8 @@ import android.view.View;
 
 public class BoardView extends View {
 
-	// private mTouchListener mTouchListener = new mTouchListener();
-	//
-	// public void setOnTouchListener(mTouchListener mTouchListener){
-	// this.mTouchListener = mTouchListener;
-	// }
-
 	public static final int GRID_WIDTH = 10;
-	public static final int BLACK = 00;
+	public static final int BLOCK = 10;
 
 	private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -64,7 +58,7 @@ public class BoardView extends View {
 
 		// Make thick, light gray lines
 		mPaint.setColor(Color.WHITE);
-		mPaint.setStrokeWidth(BLACK);
+		mPaint.setStrokeWidth(BLOCK);
 
 		// Draw the two vertical board lines
 		int cellWidth = boardWidth / 3;
