@@ -30,17 +30,18 @@ public final class R {
         public static final int x=0x7f020006;
     }
     public static final class id {
-        public static final int action_settings=0x7f090006;
-        public static final int ai_difficulty=0x7f090008;
-        public static final int androidScore=0x7f090002;
+        public static final int action_settings=0x7f090007;
+        public static final int ai_difficulty=0x7f090009;
+        public static final int androidScore=0x7f090001;
         public static final int board=0x7f090000;
-        public static final int clean_score=0x7f090009;
-        public static final int humanScore=0x7f090003;
-        public static final int information=0x7f090005;
-        public static final int new_game=0x7f090007;
-        public static final int quit=0x7f09000a;
-        public static final int score=0x7f090001;
-        public static final int ties=0x7f090004;
+        public static final int clean_score=0x7f09000a;
+        public static final int humanScore=0x7f090002;
+        public static final int information=0x7f090004;
+        public static final int new_game=0x7f090008;
+        public static final int quit=0x7f09000b;
+        public static final int ties=0x7f090003;
+        public static final int widget34=0x7f090005;
+        public static final int widget35=0x7f090006;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
