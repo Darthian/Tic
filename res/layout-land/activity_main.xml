@@ -12,8 +12,8 @@
 
     <RelativeLayout
         android:id="@+id/widget34"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="546dp"
+        android:layout_height="467dp"
         android:layout_x="0dp"
         android:layout_y="1dp" >
 
@@ -28,20 +28,16 @@
     <RelativeLayout
         android:id="@+id/widget35"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-
-        <TextView
-            android:id="@+id/androidScore"
-            android:layout_width="140dp"
-            android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:text="Derrotas: "
-            android:textSize="20dp" />
+        android:layout_height="462dp" >
 
         <TextView
             android:id="@+id/humanScore"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/ties"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="15dp"
             android:paddingLeft="20dp"
             android:text="Victorias: "
             android:textSize="20dp" />
@@ -50,9 +46,24 @@
             android:id="@+id/ties"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/humanScore"
+            android:layout_below="@+id/androidScore"
+            android:layout_marginTop="74dp"
             android:paddingLeft="20dp"
             android:text="Empates: "
             android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/androidScore"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/humanScore"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="107dp"
+            android:paddingLeft="5dp"
+            android:text="Derrotas: "
+            android:textSize="20dp" />
+
     </RelativeLayout>
 
     <TextView
