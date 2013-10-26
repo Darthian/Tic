@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,7 +38,7 @@ public class MainActivity extends Activity {
 	private BoardView mBoardView;
 	private boolean mGameOver;
 
-	static final int DIALOG_DIFFICULTY_ID = 0;
+//	static final int DIALOG_DIFFICULTY_ID = 0;
 	static final int DIALOG_QUIT_ID = 1;
 	static final int DIALOG_CLEAN_ID = 2;
 
@@ -46,6 +48,8 @@ public class MainActivity extends Activity {
 	private char mGoFirst;
 
 	private SharedPreferences mPrefs;
+	
+	private boolean mSoundOn = false;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,9 +68,9 @@ public class MainActivity extends Activity {
 		case R.id.new_game:
 			startNewGame();
 			return true;
-		case R.id.ai_difficulty:
-			showDialog(DIALOG_DIFFICULTY_ID);
-			return true;
+		case R.id.settings: 
+		    startActivityForResult(new Intent(this, Settings.class), 0);     	
+		    return true;
 		case R.id.clean_score:
 			showDialog(DIALOG_CLEAN_ID);
 			return true;
@@ -104,12 +108,23 @@ public class MainActivity extends Activity {
 			startNewGame();
 		}
 
-		mPrefs = getSharedPreferences("ttt_prefs", MODE_PRIVATE);
-
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		// Restore the scores
 		mHumanScore = mPrefs.getInt("mHumanScore", 0);
 		mAndroidScore = mPrefs.getInt("mAndroidScore", 0);
 		mTies = mPrefs.getInt("mTies", 0);
+		
+		// Restore the scores from the persistent preference data source
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);     
+		mSoundOn = mPrefs.getBoolean("sound", true);
+		String difficultyLevel = mPrefs.getString("difficulty_level", getResources().getString(R.string.difficulty_harder));
+		if (difficultyLevel.equals(getResources().getString(R.string.difficulty_easy)))
+			mGame.setDifficultyLevel(DifficultyLevel.Easy);
+		else if (difficultyLevel.equals(getResources().getString(R.string.difficulty_harder)))
+			mGame.setDifficultyLevel(DifficultyLevel.Harder);
+		else
+			mGame.setDifficultyLevel(DifficultyLevel.Expert);  
 
 	}
 
@@ -149,7 +164,8 @@ public class MainActivity extends Activity {
 			if (!mGameOver && setMove(TicGame.HUMAN_PLAYER, pos)) {
 
 				setMove(TicGame.HUMAN_PLAYER, pos);
-				mHumanMediaPlayer.start();
+				if (mSoundOn)
+					mHumanMediaPlayer.start();
 
 				int winner = mGame.checkForWinner();
 
@@ -157,7 +173,8 @@ public class MainActivity extends Activity {
 					mInfoTextView.setText(R.string.turn_computer);
 					int move = mGame.getComputerMove();
 					setMove(TicGame.COMPUTER_PLAYER, move);
-					mComputerMediaPlayer.start();
+					if(mSoundOn)
+						mComputerMediaPlayer.start();
 					winner = mGame.checkForWinner();
 				}
 
@@ -175,15 +192,10 @@ public class MainActivity extends Activity {
 						}
 					}, 1000);
 				} else if (winner == 2) {
-					mInfoTextView.setText(R.string.result_human_wins);
-					mHumanScore += 1;
-					mHumanScoreTextView.setText("Victorias: " + mHumanScore);
-					handler.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							startNewGame();
-						}
-					}, 1000);
+					mHumanScore++;
+				    mHumanScoreTextView.setText(Integer.toString(mHumanScore));
+				    String defaultMessage = getResources().getString(R.string.result_human_wins);
+				    mInfoTextView.setText(mPrefs.getString("victory_message", defaultMessage));
 				} else {
 					mInfoTextView.setText(R.string.result_computer_wins);
 					mAndroidScore += 1;
@@ -227,42 +239,6 @@ public class MainActivity extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		switch (id) {
-		case DIALOG_DIFFICULTY_ID:
-
-			builder.setTitle(R.string.difficulty_choose);
-
-			final CharSequence[] levels = {
-					getResources().getString(R.string.difficulty_easy),
-					getResources().getString(R.string.difficulty_harder),
-					getResources().getString(R.string.difficulty_expert) };
-
-			int selected = 1;
-
-			builder.setSingleChoiceItems(levels, selected,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int item) {
-
-							if (item == 0) {
-								mGame.setDifficultyLevel(DifficultyLevel.Easy);
-								startNewGame();
-							} else if (item == 1) {
-								mGame.setDifficultyLevel(DifficultyLevel.Harder);
-								startNewGame();
-							} else if (item == 2) {
-								mGame.setDifficultyLevel(DifficultyLevel.Expert);
-								startNewGame();
-							}
-
-							dialog.dismiss(); // Close dialog
-
-							Toast.makeText(getApplicationContext(),
-									levels[item], Toast.LENGTH_SHORT).show();
-						}
-					});
-			dialog = builder.create();
-
-			break;
-
 		case DIALOG_CLEAN_ID:
 
 			// Se crea el dialogo de borrado de los puntajes
@@ -347,5 +323,26 @@ public class MainActivity extends Activity {
 		ed.putInt("mTies", mTies);
 
 		ed.commit();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	   	   	
+	   if (requestCode == RESULT_CANCELED) {
+	    	// Apply potentially new settings      
+	        	
+	     	mSoundOn = mPrefs.getBoolean("sound", true);
+	        	
+	     	String difficultyLevel = mPrefs.getString("difficulty_level", 
+				getResources().getString(R.string.difficulty_harder));
+
+	   if (difficultyLevel.equals(getResources().getString(R.string.difficulty_easy)))
+	        		mGame.setDifficultyLevel(DifficultyLevel.Easy);
+	      else if (difficultyLevel.equals(getResources().getString(R.string.difficulty_harder)))
+		    		mGame.setDifficultyLevel(DifficultyLevel.Harder);
+	      else
+		    		mGame.setDifficultyLevel(DifficultyLevel.Expert);    	       	
+	      
+	   }
 	}
 }

@@ -57,7 +57,7 @@ public class BoardView extends View {
 		int boardHeight = getHeight();
 
 		// Make thick, light gray lines
-		mPaint.setColor(Color.WHITE);
+		mPaint.setColor(Color.GREEN);
 		mPaint.setStrokeWidth(BLOCK);
 
 		// Draw the two vertical board lines
