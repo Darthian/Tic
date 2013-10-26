@@ -5,9 +5,9 @@
         android:icon="@drawable/new_game"
         android:title="New Game"/>
     <item
-        android:id="@+id/ai_difficulty"
+        android:id="@+id/settings"
         android:icon="@drawable/difficulty_level"
-        android:title="Difficulty"/>
+        android:title="Settings"/>
     <item
         android:id="@+id/clean_score"
         android:icon="@drawable/clean_score"
